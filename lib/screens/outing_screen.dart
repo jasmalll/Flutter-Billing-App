@@ -146,23 +146,38 @@ class _OutingScreenState extends State<OutingScreen> {
   Future<void> _editOtherExpense({Map<String, dynamic>? existing, int? index}) async {
     final nameCtrl = TextEditingController(text: existing?['name']?.toString() ?? '');
     final amountCtrl = TextEditingController(text: existing?['amount']?.toString() ?? '');
-    final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-      title: Text(existing == null ? 'Add other expense' : 'Edit other expense'),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        TextField(controller: nameCtrl, autofocus: true, decoration: const InputDecoration(labelText: 'Expense name', hintText: 'Reporting charge')),
-        TextField(controller: amountCtrl, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Amount (₹)')),
-      ]),
-      actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')), FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save'))],
-    ));
-    final name = nameCtrl.text.trim(); final amount = double.tryParse(amountCtrl.text.trim());
-    nameCtrl.dispose(); amountCtrl.dispose();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(existing == null ? 'Add other expense' : 'Edit other expense'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: nameCtrl, autofocus: true, decoration: const InputDecoration(labelText: 'Expense name', hintText: 'Reporting charge')),
+            TextField(controller: amountCtrl, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Amount (₹)')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+        ],
+      ),
+    );
+    final name = nameCtrl.text.trim();
+    final amount = double.tryParse(amountCtrl.text.trim());
+    nameCtrl.dispose();
+    amountCtrl.dispose();
     if (ok != true || name.isEmpty || amount == null || amount < 0) return;
     final items = widget.otherExpenseItems.map((e) => Map<String, dynamic>.from(e)).toList();
     if (items.isEmpty && widget.otherExpenses > 0 && existing == null) {
       items.add({'name': 'Existing other expenses', 'amount': widget.otherExpenses});
     }
     final value = <String, dynamic>{'name': name, 'amount': amount};
-    if (index != null && index >= 0 && index < items.length) { items[index] = value; } else { items.add(value); }
+    if (index != null && index >= 0 && index < items.length) {
+      items[index] = value;
+    } else {
+      items.add(value);
+    }
     widget.onUpdateOtherExpenseItems(items);
     if (mounted) setState(() {});
   }
@@ -423,7 +438,7 @@ class _OutingScreenState extends State<OutingScreen> {
           ],
         ),
         actions: [
-          // Dynamic Group Size Dropdown (10, 11, 12, 13, 14, 15)
+          // Dynamic Group Size Dropdown
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
             padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -516,7 +531,7 @@ class _OutingScreenState extends State<OutingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Event Details Meta Card (Venue, Date, Other Expenses, Settings)
+            // Event Details Meta Card
             Container(
               margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
               padding: const EdgeInsets.all(10),
@@ -641,24 +656,94 @@ class _OutingScreenState extends State<OutingScreen> {
                 ],
               ),
             ),
+
+            // Collapsible Other Expense Breakdown
             Container(
               margin: const EdgeInsets.fromLTRB(12, 2, 12, 4),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
-              child: Column(children: [
-                Row(children: [
-                  const Expanded(child: Text('Other expense breakdown', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12))),
-                  TextButton.icon(onPressed: () => _editOtherExpense(), icon: const Icon(Icons.add, size: 16), label: const Text('Add expense')),
-                ]),
-                if (widget.otherExpenseItems.isEmpty)
-                  const Align(alignment: Alignment.centerLeft, child: Text('Add named items such as Reporting charge ₹50.', style: TextStyle(fontSize: 11, color: AppColors.textSecondary))),
-                ...widget.otherExpenseItems.asMap().entries.map((entry) => Row(children: [
-                  Expanded(child: Text(entry.value['name']?.toString() ?? 'Expense', style: const TextStyle(fontSize: 12))),
-                  Text('₹${((entry.value['amount'] as num?)?.toDouble() ?? 0).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                  IconButton(visualDensity: VisualDensity.compact, constraints: const BoxConstraints.tightFor(width: 30, height: 30), onPressed: () => _editOtherExpense(existing: entry.value, index: entry.key), icon: const Icon(Icons.edit_outlined, size: 15)),
-                  IconButton(visualDensity: VisualDensity.compact, constraints: const BoxConstraints.tightFor(width: 30, height: 30), onPressed: () => _deleteOtherExpense(entry.key), icon: const Icon(Icons.delete_outline, size: 15, color: AppColors.danger)),
-                ])),
-              ]),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Theme(
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  initiallyExpanded: false,
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                  childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+                  title: Row(
+                    children: [
+                      const Text(
+                        'Other expense breakdown',
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                      ),
+                      if (widget.otherExpenseItems.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '${widget.otherExpenseItems.length}',
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        onPressed: () => _editOtherExpense(),
+                        icon: const Icon(Icons.add, size: 15),
+                        label: const Text('Add', style: TextStyle(fontSize: 11)),
+                      ),
+                      const Icon(Icons.expand_more, size: 18, color: AppColors.textSecondary),
+                    ],
+                  ),
+                  children: [
+                    const Divider(height: 1, color: AppColors.borderSubtle),
+                    const SizedBox(height: 4),
+                    if (widget.otherExpenseItems.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Add named items such as Reporting charge ₹50.', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        ),
+                      )
+                    else
+                      ...widget.otherExpenseItems.asMap().entries.map((entry) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Row(
+                              children: [
+                                Expanded(child: Text(entry.value['name']?.toString() ?? 'Expense', style: const TextStyle(fontSize: 12))),
+                                Text('₹${((entry.value['amount'] as num?)?.toDouble() ?? 0).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                                  onPressed: () => _editOtherExpense(existing: entry.value, index: entry.key),
+                                  icon: const Icon(Icons.edit_outlined, size: 15),
+                                ),
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                                  onPressed: () => _deleteOtherExpense(entry.key),
+                                  icon: const Icon(Icons.delete_outline, size: 15, color: AppColors.danger),
+                                ),
+                              ],
+                            ),
+                          )),
+                  ],
+                ),
+              ),
             ),
 
             // Billing Ledger Groups (Dynamic Grouping)
@@ -814,7 +899,7 @@ class _OutingScreenState extends State<OutingScreen> {
                       Clipboard.setData(ClipboardData(text: text));
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('✓ Report copied! Paste directly into WhatsApp.'),
+                          content: Text('✔ Report copied! Paste directly into WhatsApp.'),
                           backgroundColor: AppColors.primary,
                         ),
                       );
