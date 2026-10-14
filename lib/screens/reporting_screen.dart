@@ -99,15 +99,32 @@ class _ReportingScreenState extends State<ReportingScreen> {
       }
     }
 
-    // Strict dual-key matching: a directory wage is only suggested when both
-    // normalized name and phone match. Missing/mismatched phones remain at the
-    // standard ₹430 wage and never receive a suggestion badge. The supervisor
-    // must tap the amber suggestion chip to apply the saved directory wage.
+    // Directory wage matching: Boys require both name and phone; SP/CP
+    // require a case-insensitive name match within the same category.
+    final directory = await StorageService.getMasterStaffDirectory();
+    String normName(String value) => value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+    String normCategory(String value) {
+      final v = value.trim().toLowerCase();
+      if (v == 'sp') return 'sp';
+      if (v == 'cp') return 'cp';
+      return 'boy';
+    }
     for (final staff in [...bList, ...sList, ...cList]) {
-      if (staff.phone.trim().isEmpty) continue;
-      final match = await StorageService.findExactMasterStaff(staff.name, staff.phone);
-      final wage = (match?['defaultWage'] as num?)?.toDouble();
-      if (wage != null) staff.suggestedWage = wage;
+      final role = normCategory(staff.role);
+      final match = directory.where((saved) {
+        if (normCategory(saved['category']?.toString() ?? 'boy') != role) return false;
+        if (normName(saved['name']?.toString() ?? '') != normName(staff.name)) return false;
+        if (role == 'boy') {
+          return StorageService.normalizePhone(saved['phone']?.toString() ?? '') ==
+              StorageService.normalizePhone(staff.phone) && staff.phone.trim().isNotEmpty;
+        }
+        return true;
+      }).toList();
+      // Never apply an ambiguous match (duplicate SP/CP names).
+      if (match.length == 1) {
+        final wage = (match.first['defaultWage'] as num?)?.toDouble();
+        if (wage != null) staff.suggestedWage = wage;
+      }
     }
     if (!mounted) return;
     widget.onListParsed(bList, sList, cList);
@@ -130,7 +147,32 @@ class _ReportingScreenState extends State<ReportingScreen> {
             trailing: Text('₹${((row['defaultWage'] as num?) ?? 430).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w800)),
           );
         })),
-      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close'))],
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+        ElevatedButton(
+          onPressed: () {
+            var updated = 0;
+            for (final item in [...widget.boysList, ...widget.spList, ...widget.cpList]) {
+              final wage = item.suggestedWage;
+              if (wage != null) {
+                item.wage = wage;
+                item.suggestedWage = null;
+                updated++;
+              }
+            }
+            Navigator.pop(ctx);
+            widget.onDataChanged();
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(updated == 0
+                  ? 'No matching staff wages found. Existing wages were unchanged.'
+                  : 'Updated wages for $updated matching staff.'),
+              ));
+            }
+          },
+          child: const Text('Done'),
+        ),
+      ],
     ));
   }
 
