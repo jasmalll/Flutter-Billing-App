@@ -8,8 +8,9 @@ A local-first staff billing and catering operations app for event ledgers, manpo
 - **Outing:** event ledger, setting bill, named other-expense breakdown, TA multiplier, and PDF export.
 - **Calendar:** archived event reload and JSON backup/restore.
 - **Other Operations Hub:** historical overview, Manpower directory, Total Counts with station allocations, and date-based SP/CP settlement calculations.
-- **Offline-first storage:** local data is saved before optional cloud sync is attempted.
-- **Supabase:** authenticated organization-scoped sync for event bills, master staff, inventory, and settlements.
+- **Offline-first storage:** every save is written to local storage first; a durable pending-sync queue is then updated.
+- **Automatic retry:** queued writes survive app restarts and retry after sign-in/startup and periodically while signed in.
+- **Supabase:** authenticated organization-scoped sync for event bills, master staff, inventory, and settlements; deletes are queued too.
 
 ## Local development
 
@@ -30,7 +31,7 @@ The app remains usable without Supabase credentials. Local records are stored us
 1. Create a Supabase project.
 2. Run [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL Editor.
 3. Configure Supabase Auth and provision a supervisor user with a trusted `app_metadata.org_id` UUID. The SQL RLS policies intentionally use trusted `app_metadata`, not user-editable metadata.
-4. Use the project URL and **anon/public key** at build time:
+4. Use the project URL and **publishable/anon public key** at build time. This project reads the key from the `SUPABASE_ANON_KEY` Dart define; do not use a secret/service-role key:
 
 ```bash
 flutter run \
@@ -40,7 +41,7 @@ flutter run \
 
 5. Open **Other → Cloud sign in** and sign in with the provisioned supervisor account.
 
-Never put a Supabase service-role key in Flutter code, GitHub Pages, or any client build. The anon key is designed for client use only when RLS is correctly configured. Cloud sync is best-effort; validate recovery and conflict behavior against your own Supabase project before using it for production records. The current cloud schema allows one event bill per organization per date.
+Never put a Supabase service-role key in Flutter code, GitHub Pages, or any client build. The anon key is designed for client use only when RLS is correctly configured. Cloud sync is local-first and queued for retry, but it still requires a successful sign-in, a valid `app_metadata.org_id`, correct RLS policies, and a working network. Validate recovery and conflict behavior against your own Supabase project before using it for production records. The current cloud schema allows one event bill per organization per date.
 
 ## GitHub Pages deployment
 

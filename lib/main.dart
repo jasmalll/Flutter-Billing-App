@@ -14,6 +14,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Supabase is optional until the build is supplied with credentials.
   try { await SupabaseService.initialize(); } catch (_) { /* app remains usable offline */ }
+  // If an authenticated session was restored, retry any locally queued cloud writes.
+  unawaited(StorageService.flushPendingCloudSync());
   runApp(const StaffBillingApp());
 }
 

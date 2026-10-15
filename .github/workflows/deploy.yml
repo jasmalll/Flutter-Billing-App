@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Run static analysis
+        run: flutter analyze
+
       - name: Run tests
         run: flutter test
 
@@ -38,7 +41,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: >-
-          flutter build web --release --base-href /Flutter-Billing-App/
+          flutter build web --release --base-href /billing_app/
           --dart-define=SUPABASE_URL="$SUPABASE_URL"
           --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
 

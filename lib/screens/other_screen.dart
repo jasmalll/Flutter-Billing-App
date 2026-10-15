@@ -254,6 +254,8 @@ class _OtherScreenState extends State<OtherScreen> {
     for (final staff in await StorageService.getMasterStaffDirectory()) {
       try { await SupabaseService.syncMasterStaff(staff); } catch (_) {}
     }
+    // Flush durable writes that previously failed or were made while offline/signed out.
+    await StorageService.flushPendingCloudSync();
   }
 
   Future<void> _addMasterItem() async {

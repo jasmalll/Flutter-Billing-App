@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/calculation_model.dart';
@@ -13,8 +12,6 @@ class SupabaseService {
   static const String _url = String.fromEnvironment('SUPABASE_URL');
   static const String _anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
   static bool _initialized = false;
-  static Timer? _billDebounce;
-  static CateringBill? _pendingBill;
 
   static bool get isConfigured => _url.isNotEmpty && _anonKey.isNotEmpty;
   static bool get isInitialized => _initialized;
@@ -40,16 +37,6 @@ class SupabaseService {
   static Future<void> signOut() async {
     _requireInitialized();
     await client.auth.signOut();
-  }
-
-  static void queueBillSync(CateringBill bill) {
-    if (!isSignedIn) return;
-    _pendingBill = bill;
-    _billDebounce?.cancel();
-    _billDebounce = Timer(const Duration(milliseconds: 300), () {
-      final pending = _pendingBill;
-      if (pending != null) unawaited(syncBill(pending).catchError((Object _) {}));
-    });
   }
 
   static Future<void> syncBill(CateringBill bill) async {
@@ -107,6 +94,21 @@ class SupabaseService {
     }, onConflict: 'organization_id,event_date');
   }
 
+
+  static Future<void> deleteMasterStaff(String phone) async {
+    if (!isSignedIn) return;
+    final orgId = _organizationId;
+    if (orgId == null) throw StateError('Supabase user is missing org_id metadata.');
+    await client.from('master_staff').delete().eq('organization_id', orgId).eq('phone', phone);
+  }
+
+  static Future<void> deleteBill(String eventDate) async {
+    if (!isSignedIn) return;
+    final orgId = _organizationId;
+    if (orgId == null) throw StateError('Supabase user is missing org_id metadata.');
+    // The schema cascades related event settlements when the event bill is removed.
+    await client.from('event_bills').delete().eq('organization_id', orgId).eq('event_date', eventDate);
+  }
 
   static Future<List<CateringBill>> fetchBills() async {
     if (!isSignedIn) return [];

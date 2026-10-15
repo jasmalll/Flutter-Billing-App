@@ -3,13 +3,13 @@
 ## Implemented in the current source
 
 - Four primary areas: Reporting, Outing, Calendar, and Other.
-- Local-first event billing/archive with optional best-effort Supabase synchronization.
+- Local-first event billing/archive with a durable pending-sync queue for Supabase synchronization.
 - Manpower directory and strict normalized **Name + Phone** wage suggestion matching. Suggestions do not change the ₹430 default until a supervisor taps the amber chip.
 - Outing named Other Expense rows and PDF breakdown.
 - Calendar JSON backup/restore with legacy bill-only backup compatibility.
 - Other Operations Hub with overview metrics, master inventory, station allocation matrix, and date-based SP/CP settlement allowances.
 - Calculation PDF with SP/CP tables, expense balance panel, totals, and signature lines.
-- Supabase organization-scoped RLS schema and optional build-time URL/anon-key configuration.
+- Supabase organization-scoped RLS schema and optional build-time URL/anon-key configuration. Local writes are queued before cloud sync; failed syncs persist and retry while signed in.
 - GitHub Pages workflow using `/billing_app/` base href, now with a Flutter test step and optional Supabase Actions secrets.
 - Restore validation now parses all backup sections before writing, rejecting malformed archives before replacing existing records.
 
