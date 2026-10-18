@@ -192,7 +192,7 @@ class _OutingScreenState extends State<OutingScreen> {
 
   void _editWageDialog(StaffItem item) {
     final wageCtrl = TextEditingController(text: item.wage.toInt().toString());
-    final taCtrl = TextEditingController(text: item.baseTa.toInt().toString());
+    final taCtrl = TextEditingController(text: item.getCalculatedTa(widget.multiplier).toInt().toString());
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -250,7 +250,7 @@ class _OutingScreenState extends State<OutingScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Manual TA (base amount):',
+              'Manual TA (final Outing amount):',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 6),
@@ -258,7 +258,7 @@ class _OutingScreenState extends State<OutingScreen> {
               controller: taCtrl,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: 'Enter TA amount', prefixText: '₹ ', filled: true,
+                hintText: 'Enter final TA amount', prefixText: '₹ ', filled: true,
                 fillColor: AppColors.background,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               ),
@@ -298,7 +298,7 @@ class _OutingScreenState extends State<OutingScreen> {
               if (w != null && w >= 0 && ta != null && ta >= 0) {
                 setState(() {
                   item.wage = w;
-                  item.baseTa = ta;
+                  item.baseTa = widget.multiplier > 0 ? (ta / widget.multiplier) : ta;
                 });
                 widget.onDataChanged();
               }
