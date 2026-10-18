@@ -84,7 +84,7 @@ class PdfService {
       allStaffBill += c.getTotal(multiplier);
     }
 
-    final grandTotalTa = allStaffTa + otherExpenses;
+    final grandTotalTa = allStaffTa;
     final grandTotalBill = allStaffBill + otherExpenses + settingExpenses;
 
     // Dynamic Boys Grouping
@@ -177,14 +177,16 @@ class PdfService {
               0: pw.FlexColumnWidth(1),
               1: pw.FlexColumnWidth(1),
               2: pw.FlexColumnWidth(1),
+              3: pw.FlexColumnWidth(1.15),
             },
             children: [
               pw.TableRow(
                 decoration: pw.BoxDecoration(color: lightNavyTint),
                 children: [
-                  _buildSummaryHeaderCell('ALL TOTAL TA', slateBlue),
+                  _buildSummaryHeaderCell('TOTAL TA', slateBlue),
                   _buildSummaryHeaderCell('OTHER EXPENSES', slateBlue),
-                  _buildSummaryHeaderCell('ALL TOTAL BILL', deepNavy, isEmphasized: true),
+                  _buildSummaryHeaderCell('SETTINGS', slateBlue),
+                  _buildSummaryHeaderCell('TOTAL BILL', deepNavy, isEmphasized: true),
                 ],
               ),
               pw.TableRow(
@@ -192,11 +194,8 @@ class PdfService {
                 children: [
                   _buildSummaryValueCell(formatCurrency(grandTotalTa), charcoal),
                   _buildSummaryValueCell(formatCurrency(otherExpenses), charcoal),
-                  _buildSummaryValueCell(
-                    formatCurrency(grandTotalBill),
-                    deepNavy,
-                    isEmphasized: true,
-                  ),
+                  _buildSummaryValueCell(formatCurrency(settingExpenses), charcoal),
+                  _buildSummaryValueCell(formatCurrency(grandTotalBill), deepNavy, isEmphasized: true),
                 ],
               ),
             ],

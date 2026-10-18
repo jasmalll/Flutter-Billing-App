@@ -139,7 +139,7 @@ class _OutingScreenState extends State<OutingScreen> {
   }
 
   // TA-il settings koodilla
-  double get grandTotalTa => allStaffTa + widget.otherExpenses;
+  double get grandTotalTa => allStaffTa;
   // Final bill-il settings expenses koodum
   double get grandTotalBill => allStaffBill + widget.otherExpenses + widget.settingExpenses;
 
@@ -192,6 +192,7 @@ class _OutingScreenState extends State<OutingScreen> {
 
   void _editWageDialog(StaffItem item) {
     final wageCtrl = TextEditingController(text: item.wage.toInt().toString());
+    final taCtrl = TextEditingController(text: item.baseTa.toInt().toString());
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -249,6 +250,21 @@ class _OutingScreenState extends State<OutingScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
+              'Manual TA (base amount):',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 6),
+            TextField(
+              controller: taCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'Enter TA amount', prefixText: '₹ ', filled: true,
+                fillColor: AppColors.background,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
               'Or Custom Wage:',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
             ),
@@ -278,9 +294,11 @@ class _OutingScreenState extends State<OutingScreen> {
             ),
             onPressed: () {
               final w = double.tryParse(wageCtrl.text.trim());
-              if (w != null && w >= 0) {
+              final ta = double.tryParse(taCtrl.text.trim());
+              if (w != null && w >= 0 && ta != null && ta >= 0) {
                 setState(() {
                   item.wage = w;
+                  item.baseTa = ta;
                 });
                 widget.onDataChanged();
               }
