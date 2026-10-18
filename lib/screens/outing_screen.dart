@@ -530,7 +530,7 @@ class _OutingScreenState extends State<OutingScreen> {
               Map<int, String> gpayMap = {};
               _gpayControllers.forEach((k, v) => gpayMap[k] = v.text.trim());
               PdfService.exportOutingPdf(
-                auditoriumName: _auditoriumCtrl.text,
+                auditoriumName: _auditoriumCtrl.text.trim(),
                 eventDate: widget.eventDate,
                 boysList: widget.boysList,
                 spList: widget.spList,

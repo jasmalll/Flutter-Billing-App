@@ -102,9 +102,21 @@ class OutingRowItem extends StatelessWidget {
                       ),
                     Padding(
                       padding: const EdgeInsets.only(left: 4),
-                      child: Text(
-                        '+ ₹${autoTa.toInt()} TA',
-                        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.success),
+                      child: InkWell(
+                        onTap: onEditWage,
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: AppColors.successLight,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFF86EFAC), width: 0.8),
+                          ),
+                          child: Text(
+                            '+ ₹${autoTa.toInt()} TA ✎',
+                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.success),
+                          ),
+                        ),
                       ),
                     ),
                   ],

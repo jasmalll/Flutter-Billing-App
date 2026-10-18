@@ -466,9 +466,16 @@ class PdfService {
       ),
     );
 
-    await Printing.layoutPdf(
-      onLayout: (format) async => pdf.save(),
-      name: '${venue.replaceAll(' ', '_')}_Billing_Report.pdf',
+    // Open the native share sheet so the generated venue-named PDF can be
+    // sent as an attachment through WhatsApp, Gmail, Bluetooth, etc.
+    final safeVenue = venue
+        .replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+    final fileName = '${safeVenue.isEmpty ? 'Catering' : safeVenue}_Billing_Report.pdf';
+    await Printing.sharePdf(
+      bytes: await pdf.save(),
+      filename: fileName,
     );
   }
 
