@@ -1063,7 +1063,7 @@ class _OutingScreenState extends State<OutingScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Total TA: ${totalTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
-                Text('Total Bill: {totalBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
+                Text('Total Bill: ${totalBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
               ],
             ),
           ),
