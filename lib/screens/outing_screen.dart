@@ -154,7 +154,7 @@ class _OutingScreenState extends State<OutingScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(controller: nameCtrl, autofocus: true, decoration: const InputDecoration(labelText: 'Expense name', hintText: 'Reporting charge')),
-            TextField(controller: amountCtrl, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Amount (₹)')),
+            TextField(controller: amountCtrl, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Amount (鈧�)')),
           ],
         ),
         actions: [
@@ -234,7 +234,7 @@ class _OutingScreenState extends State<OutingScreen> {
                           ),
                         ),
                         child: Text(
-                          '₹$quickWage',
+                          '鈧�$quickWage',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
@@ -258,7 +258,7 @@ class _OutingScreenState extends State<OutingScreen> {
               controller: taCtrl,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: 'Enter final TA amount', prefixText: '₹ ', filled: true,
+                hintText: 'Enter final TA amount', prefixText: '鈧� ', filled: true,
                 fillColor: AppColors.background,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               ),
@@ -274,7 +274,7 @@ class _OutingScreenState extends State<OutingScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'Enter wage',
-                prefixText: '₹ ',
+                prefixText: '鈧� ',
                 filled: true,
                 fillColor: AppColors.background,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
@@ -311,6 +311,107 @@ class _OutingScreenState extends State<OutingScreen> {
     );
   }
 
+  // Compact roster-only WhatsApp copy: Boys use the same dynamic groups as
+  // the Outing screen; SP and CP are kept as separate lists.
+  String _generateWhatsAppNameOnlyText() {
+    final sb = StringBuffer();
+    final dateStr = DateFormat('dd/MM/yyyy').format(widget.eventDate);
+
+    if (_auditoriumCtrl.text.trim().isNotEmpty) {
+      sb.writeln('*${_auditoriumCtrl.text.trim().toUpperCase()}*');
+      sb.writeln('Date: $dateStr\n');
+    }
+
+    sb.writeln('*BOYS*');
+    final size = widget.groupSize > 0 ? widget.groupSize : 10;
+    for (int i = 0; i < widget.boysList.length; i += size) {
+      final end = (i + size < widget.boysList.length) ? i + size : widget.boysList.length;
+      final batch = widget.boysList.sublist(i, end);
+      final groupIndex = (i ~/ size) + 1;
+      sb.writeln('*GROUP $groupIndex (${batch.first.index}-${batch.last.index})*');
+      for (final boy in batch) {
+        final phone = boy.phone.trim();
+        sb.writeln('${boy.index}. ${boy.name.trim()}${phone.isNotEmpty ? '  $phone' : ''}');
+      }
+      final gpay = (_gpayControllers[groupIndex]?.text ?? widget.groupGpay[groupIndex] ?? '').trim();
+      if (gpay.isNotEmpty) sb.writeln('$groupIndex Gpay :- $gpay');
+      sb.writeln();
+    }
+
+    if (widget.spList.isNotEmpty) {
+      sb.writeln('*SP*');
+      for (final staff in widget.spList) {
+        final phone = staff.phone.trim();
+        sb.writeln('${staff.index}. ${staff.name.trim()}${phone.isNotEmpty ? '  $phone' : ''}');
+      }
+      sb.writeln();
+    }
+    if (widget.cpList.isNotEmpty) {
+      sb.writeln('*CP*');
+      for (final staff in widget.cpList) {
+        final phone = staff.phone.trim();
+        sb.writeln('${staff.index}. ${staff.name.trim()}${phone.isNotEmpty ? '  $phone' : ''}');
+      }
+      sb.writeln();
+    }
+    return sb.toString().trim();
+  }
+
+  Future<void> _copyWhatsAppText(String text, String message) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.primary),
+    );
+  }
+
+  Future<void> _showWhatsAppCopyOptions() async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 38, height: 4, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(8))),
+              const SizedBox(height: 14),
+              const Text('WhatsApp Copy Format', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              const SizedBox(height: 6),
+              const Text('Choose what you want to copy', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              const SizedBox(height: 14),
+              ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: AppColors.border)),
+                leading: const CircleAvatar(backgroundColor: Color(0xFFE8F7EE), child: Icon(Icons.people_alt_outlined, color: AppColors.success)),
+                title: const Text('Name Only', style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: const Text('Number, name, phone and group GPay number'),
+                onTap: () => Navigator.pop(ctx, 'names'),
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: AppColors.border)),
+                leading: const CircleAvatar(backgroundColor: Color(0xFFEFF4FF), child: Icon(Icons.receipt_long_outlined, color: AppColors.primary)),
+                title: const Text('Name and Wage', style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: const Text('Existing full billing WhatsApp format'),
+                onTap: () => Navigator.pop(ctx, 'billing'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (choice == 'names') {
+      await _copyWhatsAppText(_generateWhatsAppNameOnlyText(), 'Name list copied. Paste it into WhatsApp.');
+    } else if (choice == 'billing') {
+      await _copyWhatsAppText(_generateWhatsAppBillingText(), 'Full billing copied. Paste it into WhatsApp.');
+    }
+  }
+
   String _generateWhatsAppBillingText() {
     StringBuffer sb = StringBuffer();
     final dateStr = DateFormat('dd/MM/yyyy').format(widget.eventDate);
@@ -328,7 +429,7 @@ class _OutingScreenState extends State<OutingScreen> {
 
       for (var b in batch) {
         if (!b.isPresent) {
-          sb.writeln('${b.index}.🔴');
+          sb.writeln('${b.index}.馃敶');
         } else {
           String pStr = b.phone.isNotEmpty ? ' ${b.phone}' : '';
           double calcTa = b.getCalculatedTa(widget.multiplier);
@@ -359,12 +460,12 @@ class _OutingScreenState extends State<OutingScreen> {
       sb.writeln('Sp');
       for (var s in widget.spList) {
         if (!s.isPresent) {
-          sb.writeln('👉🏻 ${s.name} 🔴');
+          sb.writeln('馃憠馃徎 ${s.name} 馃敶');
         } else {
           double calcTa = s.getCalculatedTa(widget.multiplier);
           double total = s.getTotal(widget.multiplier);
           String check = s.outingStatus.isNotEmpty ? ' ${s.outingStatus}' : '';
-          sb.writeln('👉🏻 ${s.name}  ${s.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
+          sb.writeln('馃憠馃徎 ${s.name}  ${s.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
         }
       }
       double spTa = widget.spList.fold(0.0, (sum, s) => sum + s.getCalculatedTa(widget.multiplier));
@@ -377,12 +478,12 @@ class _OutingScreenState extends State<OutingScreen> {
       sb.writeln('Cp');
       for (var c in widget.cpList) {
         if (!c.isPresent) {
-          sb.writeln('👉🏻 ${c.name} 🔴');
+          sb.writeln('馃憠馃徎 ${c.name} 馃敶');
         } else {
           double calcTa = c.getCalculatedTa(widget.multiplier);
           double total = c.getTotal(widget.multiplier);
           String check = c.outingStatus.isNotEmpty ? ' ${c.outingStatus}' : '';
-          sb.writeln('👉🏻 ${c.name}  ${c.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
+          sb.writeln('馃憠馃徎 ${c.name}  ${c.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
         }
       }
       double cpTa = widget.cpList.fold(0.0, (sum, c) => sum + c.getCalculatedTa(widget.multiplier));
@@ -501,7 +602,7 @@ class _OutingScreenState extends State<OutingScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('TA:×', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                const Text('TA:脳', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                 const SizedBox(width: 2),
                 SizedBox(
                   width: 32,
@@ -634,7 +735,7 @@ class _OutingScreenState extends State<OutingScreen> {
                           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             hintText: '0',
-                            prefixText: 'Other:₹',
+                            prefixText: 'Other:鈧�',
                             prefixStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                             isDense: true,
                             filled: true,
@@ -659,7 +760,7 @@ class _OutingScreenState extends State<OutingScreen> {
                           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             hintText: '0',
-                            prefixText: 'Setting:₹',
+                            prefixText: 'Setting:鈧�',
                             prefixStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                             isDense: true,
                             filled: true,
@@ -734,7 +835,7 @@ class _OutingScreenState extends State<OutingScreen> {
                         padding: EdgeInsets.symmetric(vertical: 8),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('Add named items such as Reporting charge ₹50.', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          child: Text('Add named items such as Reporting charge 鈧�50.', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                         ),
                       )
                     else
@@ -743,7 +844,7 @@ class _OutingScreenState extends State<OutingScreen> {
                             child: Row(
                               children: [
                                 Expanded(child: Text(entry.value['name']?.toString() ?? 'Expense', style: const TextStyle(fontSize: 12))),
-                                Text('₹${((entry.value['amount'] as num?)?.toDouble() ?? 0).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                                Text('鈧�${((entry.value['amount'] as num?)?.toDouble() ?? 0).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   constraints: const BoxConstraints.tightFor(width: 28, height: 28),
@@ -837,20 +938,22 @@ class _OutingScreenState extends State<OutingScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Total TA: ₹${bTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
-                                    Text('Group Total: ₹${bBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
+                                    Text('Total TA: 鈧�${bTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
+                                    Text('Group Total: 鈧�${bBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: _gpayControllers[gIdx],
+                                  keyboardType: TextInputType.phone,
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                   onChanged: (val) {
                                     widget.groupGpay[gIdx] = val.trim();
                                     widget.onDataChanged();
                                   },
                                   decoration: InputDecoration(
-                                    hintText: 'GPay :- Name & Number / UPI',
+                                    hintText: 'GPay mobile number only',
                                     hintStyle: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                                     isDense: true,
                                     filled: true,
@@ -898,8 +1001,8 @@ class _OutingScreenState extends State<OutingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('ALL TA: ₹${grandTotalTa.toInt()}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.success)),
-                      Text('ALL TOTAL: ₹${grandTotalBill.toInt()}', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                      Text('ALL TA: 鈧�${grandTotalTa.toInt()}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.success)),
+                      Text('ALL TOTAL: 鈧�${grandTotalBill.toInt()}', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: AppColors.primary)),
                     ],
                   ),
                   const Spacer(),
@@ -912,16 +1015,7 @@ class _OutingScreenState extends State<OutingScreen> {
                     ),
                     icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 16),
                     label: const Text('WhatsApp Format', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                    onPressed: () {
-                      final text = _generateWhatsAppBillingText();
-                      Clipboard.setData(ClipboardData(text: text));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('✔ Report copied! Paste directly into WhatsApp.'),
-                          backgroundColor: AppColors.primary,
-                        ),
-                      );
-                    },
+                    onPressed: _showWhatsAppCopyOptions,
                   ),
                 ],
               ),
@@ -968,8 +1062,8 @@ class _OutingScreenState extends State<OutingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total TA: ₹${totalTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
-                Text('Total Bill: ₹${totalBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
+                Text('Total TA: 鈧�${totalTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
+                Text('Total Bill: 鈧�${totalBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
               ],
             ),
           ),
