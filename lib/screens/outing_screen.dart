@@ -234,7 +234,7 @@ class _OutingScreenState extends State<OutingScreen> {
                           ),
                         ),
                         child: Text(
-                          '鈧�$quickWage',
+                          '$quickWage',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
@@ -258,7 +258,7 @@ class _OutingScreenState extends State<OutingScreen> {
               controller: taCtrl,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: 'Enter final TA amount', prefixText: '鈧� ', filled: true,
+                hintText: 'Enter final TA amount', prefixText: '₹', filled: true,
                 fillColor: AppColors.background,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               ),
@@ -274,7 +274,7 @@ class _OutingScreenState extends State<OutingScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'Enter wage',
-                prefixText: '鈧� ',
+                prefixText: '₹',
                 filled: true,
                 fillColor: AppColors.background,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
@@ -429,7 +429,7 @@ class _OutingScreenState extends State<OutingScreen> {
 
       for (var b in batch) {
         if (!b.isPresent) {
-          sb.writeln('${b.index}.馃敶');
+          sb.writeln('${b.index}.');
         } else {
           String pStr = b.phone.isNotEmpty ? ' ${b.phone}' : '';
           double calcTa = b.getCalculatedTa(widget.multiplier);
@@ -460,12 +460,12 @@ class _OutingScreenState extends State<OutingScreen> {
       sb.writeln('Sp');
       for (var s in widget.spList) {
         if (!s.isPresent) {
-          sb.writeln('馃憠馃徎 ${s.name} 馃敶');
+          sb.writeln(' ${s.name}');
         } else {
           double calcTa = s.getCalculatedTa(widget.multiplier);
           double total = s.getTotal(widget.multiplier);
           String check = s.outingStatus.isNotEmpty ? ' ${s.outingStatus}' : '';
-          sb.writeln('馃憠馃徎 ${s.name}  ${s.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
+          sb.writeln('${s.name}  ${s.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
         }
       }
       double spTa = widget.spList.fold(0.0, (sum, s) => sum + s.getCalculatedTa(widget.multiplier));
@@ -478,12 +478,12 @@ class _OutingScreenState extends State<OutingScreen> {
       sb.writeln('Cp');
       for (var c in widget.cpList) {
         if (!c.isPresent) {
-          sb.writeln('馃憠馃徎 ${c.name} 馃敶');
+          sb.writeln('${c.name} ');
         } else {
           double calcTa = c.getCalculatedTa(widget.multiplier);
           double total = c.getTotal(widget.multiplier);
           String check = c.outingStatus.isNotEmpty ? ' ${c.outingStatus}' : '';
-          sb.writeln('馃憠馃徎 ${c.name}  ${c.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
+          sb.writeln(' ${c.name}  ${c.wage.toInt()} + ${calcTa.toInt()} = ${total.toInt()}$check');
         }
       }
       double cpTa = widget.cpList.fold(0.0, (sum, c) => sum + c.getCalculatedTa(widget.multiplier));
@@ -602,7 +602,7 @@ class _OutingScreenState extends State<OutingScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('TA:脳', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                const Text('TA:', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                 const SizedBox(width: 2),
                 SizedBox(
                   width: 32,
@@ -735,7 +735,7 @@ class _OutingScreenState extends State<OutingScreen> {
                           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             hintText: '0',
-                            prefixText: 'Other:鈧�',
+                            prefixText: 'Other:',
                             prefixStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                             isDense: true,
                             filled: true,
@@ -760,7 +760,7 @@ class _OutingScreenState extends State<OutingScreen> {
                           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             hintText: '0',
-                            prefixText: 'Setting:鈧�',
+                            prefixText: 'Setting:',
                             prefixStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                             isDense: true,
                             filled: true,
@@ -835,7 +835,7 @@ class _OutingScreenState extends State<OutingScreen> {
                         padding: EdgeInsets.symmetric(vertical: 8),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('Add named items such as Reporting charge 鈧�50.', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          child: Text('Add named items such as Reporting charge ', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                         ),
                       )
                     else
@@ -844,7 +844,7 @@ class _OutingScreenState extends State<OutingScreen> {
                             child: Row(
                               children: [
                                 Expanded(child: Text(entry.value['name']?.toString() ?? 'Expense', style: const TextStyle(fontSize: 12))),
-                                Text('鈧�${((entry.value['amount'] as num?)?.toDouble() ?? 0).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                                Text('${((entry.value['amount'] as num?)?.toDouble() ?? 0).toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                                 IconButton(
                                   visualDensity: VisualDensity.compact,
                                   constraints: const BoxConstraints.tightFor(width: 28, height: 28),
@@ -938,8 +938,8 @@ class _OutingScreenState extends State<OutingScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Total TA: 鈧�${bTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
-                                    Text('Group Total: 鈧�${bBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
+                                    Text('Total TA: ${bTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
+                                    Text('Group Total: ${bBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
@@ -1001,8 +1001,8 @@ class _OutingScreenState extends State<OutingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('ALL TA: 鈧�${grandTotalTa.toInt()}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.success)),
-                      Text('ALL TOTAL: 鈧�${grandTotalBill.toInt()}', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                      Text('ALL TA: ${grandTotalTa.toInt()}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.success)),
+                      Text('ALL TOTAL: ${grandTotalBill.toInt()}', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: AppColors.primary)),
                     ],
                   ),
                   const Spacer(),
@@ -1062,8 +1062,8 @@ class _OutingScreenState extends State<OutingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total TA: 鈧�${totalTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
-                Text('Total Bill: 鈧�${totalBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
+                Text('Total TA: ${totalTa.toInt()}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.success)),
+                Text('Total Bill: {totalBill.toInt()}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.primary)),
               ],
             ),
           ),
