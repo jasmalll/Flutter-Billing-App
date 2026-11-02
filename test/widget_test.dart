@@ -79,6 +79,6 @@ void main() {
     expect(find.text('Reporting'), findsAtLeastNWidgets(1));
     expect(find.text('Outing'), findsAtLeastNWidgets(1));
     expect(find.text('Calendar'), findsAtLeastNWidgets(1));
-    expect(find.text('Staff'), findsAtLeastNWidgets(1));
+    expect(find.text('Manage'), findsAtLeastNWidgets(1));
   });
 }
