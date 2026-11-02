@@ -59,3 +59,8 @@ The workflow in `.github/workflows/deploy.yml` builds the web app with `/billing
 - Verify Supabase RLS using at least two test organizations and confirm each can access only its own records.
 - Decide whether multiple events on the same date are allowed before changing the cloud uniqueness key.
 - Keep a separate backup outside the phone/browser storage.
+
+
+## UI refresh (November 2026)
+
+The shared Flutter theme has been refreshed for a cleaner CaterPro experience: a refined navy/slate palette, consistent rounded form fields and buttons, quieter card borders, unified dialogs and snackbars, and clearer navigation spacing. Existing billing, local-first storage, cloud sync, PDF, calendar, and staff-management logic has been intentionally preserved.

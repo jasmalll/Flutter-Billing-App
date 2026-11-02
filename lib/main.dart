@@ -34,13 +34,125 @@ class StaffBillingApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.primary,
           primary: AppColors.primary,
+          secondary: const Color(0xFF0D9488),
           surface: AppColors.card,
+          error: AppColors.danger,
         ),
+        visualDensity: VisualDensity.standard,
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
+          scrolledUnderElevation: 0,
           centerTitle: false,
+          titleSpacing: 20,
+          toolbarHeight: 66,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
+          ),
+        ),
+        cardTheme: CardThemeData(
+          color: AppColors.card,
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: const BorderSide(color: AppColors.borderSubtle),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFF8FAFC),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+          labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(13),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(13),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(13),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(13),
+            borderSide: const BorderSide(color: AppColors.danger),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+          ),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            minimumSize: const Size(46, 46),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            side: const BorderSide(color: AppColors.border),
+            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        dividerTheme: const DividerThemeData(
+          color: AppColors.borderSubtle,
+          thickness: 1,
+          space: 1,
+        ),
+        snackBarTheme: SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.primarySurface,
+          contentTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+        dialogTheme: DialogThemeData(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          titleTextStyle: const TextStyle(color: AppColors.textPrimary, fontSize: 19, fontWeight: FontWeight.w800),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: const Color(0xFFF1F5F9),
+          selectedColor: AppColors.primary,
+          labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          side: BorderSide.none,
+        ),
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: AppColors.primary,
+          linearTrackColor: AppColors.borderSubtle,
         ),
       ),
       home: const MainNavigationShell(),
@@ -295,7 +407,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         ),
         child: NavigationBarTheme(
           data: NavigationBarThemeData(
-            indicatorColor: AppColors.primarySurface,
+            indicatorColor: const Color(0xFF24324D),
             iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
               if (states.contains(WidgetState.selected)) {
                 return const IconThemeData(color: Colors.white, size: 22);
@@ -318,8 +430,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             }),
           ),
           child: NavigationBar(
-            height: 64,
+            height: 72,
             backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
             elevation: 0,
             selectedIndex: _currentIndex,
             onDestinationSelected: (index) {
@@ -345,7 +458,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               NavigationDestination(
                 icon: Icon(Icons.dashboard_customize_rounded),
                 selectedIcon: Icon(Icons.dashboard_customize_rounded),
-                label: 'Staff',
+                label: 'Manage',
               ),
             ],
           ),
